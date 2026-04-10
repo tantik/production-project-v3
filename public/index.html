@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Production Project v6 Dashboard</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:0;background:#0b1220;color:#e5e7eb}
+    header{padding:18px 20px;background:#101827;position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(255,255,255,.08)}
+    main{padding:18px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+    .card{background:#111827;border-radius:16px;padding:16px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+    .full{grid-column:1/-1}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.muted{color:#94a3b8;font-size:13px}
+    button{border:0;border-radius:10px;padding:10px 12px;cursor:pointer}.primary{background:#22c55e;color:#052e16}.secondary{background:#60a5fa;color:#0f172a}.danger{background:#f87171;color:#3f0c0c}
+    input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e5e7eb}
+    pre{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,.04);padding:12px;border-radius:10px;max-height:340px;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
+    .pill{display:inline-block;padding:4px 8px;background:#233047;border-radius:999px;font-size:12px}.hidden{display:none}
+  </style>
+</head>
+<body>
+<header>
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <h1 style="margin:0">Production Project v6 Dashboard</h1>
+      <div class="muted">Auth, operator inbox, campaigns, analytics, safer live approval</div>
+    </div>
+    <div class="row">
+      <button class="secondary" onclick="loadDashboard()">Refresh</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<main id="loginPane" class="full hidden" style="max-width:480px;margin:40px auto;display:block;padding:0 18px;">
+  <section class="card">
+    <h2>Вход</h2>
+    <div class="muted">Если задан DASHBOARD_PASSWORD, нужен логин.</div>
+    <div style="margin-top:10px"><input id="password" type="password" placeholder="Dashboard password"/></div>
+    <div style="margin-top:10px"><button class="primary" onclick="login()">Войти</button></div>
+    <pre id="loginResult"></pre>
+  </section>
+</main>
+
+<main id="appPane">
+  <section class="card"><h2>Environment</h2><pre id="env">Loading...</pre></section>
+  <section class="card"><h2>Analytics</h2><pre id="analytics">Loading...</pre></section>
+  <section class="card"><h2>Approvals</h2><div id="approvals">Loading...</div></section>
+  <section class="card"><h2>Operator inbox</h2><div id="inbox">Loading...</div></section>
+  <section class="card"><h2>Leads</h2><div id="leads">Loading...</div></section>
+  <section class="card"><h2>Follow-ups</h2><div id="followups">Loading...</div></section>
+  <section class="card full">
+    <h2>Campaign scheduler</h2>
+    <div class="row">
+      <input id="campaignName" placeholder="Soft outreach test batch" />
+      <input id="campaignLeadIds" placeholder="lead_001,lead_002" />
+      <input id="campaignScheduledFor" placeholder="2026-04-10T12:00:00.000Z (optional)" />
+      <select id="campaignMode"><option value="dry_run">dry_run</option><option value="live">live</option></select>
+      <select id="campaignAutoApprove"><option value="false">manual approval</option><option value="true">auto approve</option></select>
+    </div>
+    <div style="margin-top:10px" class="row"><button class="primary" onclick="createCampaign()">Create campaign</button><button class="secondary" onclick="processDueCampaigns()">Process due campaigns</button></div>
+    <pre id="campaignResult"></pre>
+  </section>
+  <section class="card full">
+    <h2>Manual reply</h2>
+    <div class="row"><input id="replyLeadId" placeholder="lead_001" /></div>
+    <div style="margin-top:10px"><textarea id="replyText" rows="4" placeholder="ありがとうございます。どういうイメージか、もう少し詳しく教えていただけますか？"></textarea></div>
+    <div style="margin-top:10px"><button class="secondary" onclick="sendManualReply()">Process reply</button></div>
+    <pre id="replyResult"></pre>
+  </section>
+  <section class="card full">
+    <h2>Operator send</h2>
+    <div class="row"><input id="operatorLeadId" placeholder="lead_001" /><select id="operatorMode"><option value="dry_run">dry_run</option><option value="live">live</option></select></div>
+    <div style="margin-top:10px"><textarea id="operatorText" rows="4" placeholder="Short operator message"></textarea></div>
+    <div style="margin-top:10px"><button class="primary" onclick="operatorSend()">Send outbound</button></div>
+    <pre id="operatorResult"></pre>
+  </section>
+  <section class="card full">
+    <h2>Conversation</h2>
+    <div class="row"><input id="conversationLeadId" placeholder="lead_001" /><button class="secondary" onclick="loadConversation()">Load conversation</button></div>
+    <pre id="conversation">Choose a lead</pre>
+  </section>
+</main>
+<script>
+async function api(url, options={}) {
+  const res = await fetch(url, { credentials:'include', headers:{'Content-Type':'application/json', ...(options.headers||{})}, ...options });
+  let data = {};
+  try { data = await res.json(); } catch {}
+  if (res.status === 401) throw new Error('AUTH_REQUIRED');
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+function esc(text){return String(text ?? '').replace(/[&<>\"]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
+function showLogin(show){document.getElementById('loginPane').classList.toggle('hidden', !show);document.getElementById('appPane').classList.toggle('hidden', show)}
+async function bootstrap(){
+  try { await api('/api/env'); showLogin(false); await loadDashboard(); }
+  catch(err){ if(String(err.message)==='AUTH_REQUIRED'){showLogin(true)} else { document.body.innerHTML = '<pre>'+esc(err.message)+'</pre>'; } }
+}
+async function login(){ try{ const password=document.getElementById('password').value; const data=await api('/api/login',{method:'POST',body:JSON.stringify({password})}); document.getElementById('loginResult').textContent=JSON.stringify(data,null,2); showLogin(false); await loadDashboard(); }catch(err){ document.getElementById('loginResult').textContent=err.message; }}
+async function logout(){ try{ await api('/api/logout',{method:'POST',body:'{}'}); }catch{} location.reload(); }
+async function loadDashboard(){
+  const [env, analytics, approvals, leads, followups, inbound, campaigns] = await Promise.all([
+    api('/api/env'), api('/api/analytics'), api('/api/approvals'), api('/api/leads'), api('/api/followups'), api('/api/inbound-events'), api('/api/campaigns')
+  ]);
+  document.getElementById('env').textContent = JSON.stringify(env,null,2);
+  document.getElementById('analytics').textContent = JSON.stringify(analytics,null,2);
+  document.getElementById('approvals').innerHTML = approvals.map(renderApproval).join('') || '<div class="muted">No approvals</div>';
+  document.getElementById('inbox').innerHTML = renderInbox(inbound);
+  document.getElementById('leads').innerHTML = renderLeads(leads);
+  document.getElementById('followups').innerHTML = renderFollowups(followups);
+  document.getElementById('campaignResult').textContent = JSON.stringify(campaigns,null,2);
+}
+function renderApproval(item){ const canApprove=item.status==='pending'; return `<div class="card" style="margin-bottom:10px;background:#0f172a"><div><strong>${esc(item.businessName||item.leadId)}</strong> <span class="pill">${esc(item.status)}</span> <span class="pill">${esc(item.approvalSource||'pending')}</span></div><div class="muted">${esc(item.channel)} / ${esc(item.stage)}</div><pre>${esc(item.polishedMessage||'')}</pre>${canApprove?`<button class="primary" onclick="approve('${item.leadId}')">Approve</button><button class="danger" onclick="rejectApproval('${item.leadId}')">Reject</button>`:''}</div>`; }
+function renderInbox(items){ return `<table><thead><tr><th>At</th><th>Provider</th><th>Lead</th><th>Text</th></tr></thead><tbody>${items.map(item=>`<tr><td>${esc(item.receivedAt)}</td><td>${esc(item.provider)}</td><td>${esc(item.leadId||'')}</td><td>${esc(item.text)}</td></tr>`).join('')}</tbody></table>`; }
+function renderLeads(leads){ return `<table><thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Score</th></tr></thead><tbody>${leads.map(lead=>`<tr><td>${esc(lead.id)}</td><td>${esc(lead.businessName)}</td><td>${esc(lead.status)}</td><td>${esc(lead.scoring?.totalScore ?? '')}</td></tr>`).join('')}</tbody></table>`; }
+function renderFollowups(items){ return `<table><thead><tr><th>Lead</th><th>Status</th><th>Due</th><th>#</th></tr></thead><tbody>${items.map(item=>`<tr><td>${esc(item.leadId)}</td><td>${esc(item.status)}</td><td>${esc(item.dueAt)}</td><td>${esc(item.followupNumber)}</td></tr>`).join('')}</tbody></table>`; }
+async function approve(leadId){ await api(`/api/approvals/${leadId}/approve`,{method:'POST',body:JSON.stringify({mode:'dry_run'})}); await loadDashboard(); }
+async function rejectApproval(leadId){ await api(`/api/approvals/${leadId}/reject`,{method:'POST',body:JSON.stringify({})}); await loadDashboard(); }
+async function loadConversation(){ const leadId=document.getElementById('conversationLeadId').value.trim(); if(!leadId) return; const data=await api(`/api/conversations/${leadId}`); document.getElementById('conversation').textContent=JSON.stringify(data,null,2); }
+async function sendManualReply(){ const leadId=document.getElementById('replyLeadId').value.trim(); const text=document.getElementById('replyText').value.trim(); const data=await api('/api/replies/manual',{method:'POST',body:JSON.stringify({leadId,text})}); document.getElementById('replyResult').textContent=JSON.stringify(data,null,2); await loadDashboard(); }
+async function operatorSend(){ const leadId=document.getElementById('operatorLeadId').value.trim(); const text=document.getElementById('operatorText').value.trim(); const mode=document.getElementById('operatorMode').value; const data=await api('/api/operator/send',{method:'POST',body:JSON.stringify({leadId,text,mode})}); document.getElementById('operatorResult').textContent=JSON.stringify(data,null,2); await loadDashboard(); }
+async function createCampaign(){ const payload={ name:document.getElementById('campaignName').value.trim(), leadIds:document.getElementById('campaignLeadIds').value.split(',').map(v=>v.trim()).filter(Boolean), scheduledFor:document.getElementById('campaignScheduledFor').value.trim() || undefined, sendMode:document.getElementById('campaignMode').value, autoApprove:document.getElementById('campaignAutoApprove').value === 'true' }; const data=await api('/api/campaigns',{method:'POST',body:JSON.stringify(payload)}); document.getElementById('campaignResult').textContent=JSON.stringify(data,null,2); await loadDashboard(); }
+async function processDueCampaigns(){ const data=await api('/api/campaigns/process-due',{method:'POST',body:'{}'}); document.getElementById('campaignResult').textContent=JSON.stringify(data,null,2); await loadDashboard(); }
+bootstrap();
+</script>
+</body>
+</html>

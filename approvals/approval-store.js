@@ -1,72 +1,60 @@
-import fs from "fs/promises";
-import path from "path";
+import { getRow, listRows, upsertRow } from '../services/db.js';
 
-const DATA_DIR = path.resolve("data/approvals");
-
-async function ensureDir() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-}
-
-function approvalPath(leadId) {
-  return path.join(DATA_DIR, `${leadId}.json`);
+function toRow(request) {
+  return {
+    lead_id: request.leadId,
+    id: request.id,
+    business_name: request.businessName || '',
+    channel: request.channel || '',
+    status: request.status || 'pending',
+    stage: request.stage || 'first_outreach',
+    created_at: request.createdAt || new Date().toISOString(),
+    updated_at: request.updatedAt || new Date().toISOString(),
+    data: request
+  };
 }
 
 export async function createApprovalRequest(payload) {
-  await ensureDir();
   const request = {
     id: payload.id,
     leadId: payload.leadId,
     businessName: payload.businessName,
     channel: payload.channel,
-    stage: payload.stage || "first_outreach",
+    stage: payload.stage || 'first_outreach',
     candidateMessages: payload.candidateMessages || [],
     selectedMessage: payload.selectedMessage || null,
-    polishedMessage: payload.polishedMessage || "",
+    polishedMessage: payload.polishedMessage || '',
     salesStrategy: payload.salesStrategy || null,
-    status: "pending",
+    status: 'pending',
+    approvalSource: 'pending',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-
-  await fs.writeFile(approvalPath(payload.leadId), JSON.stringify(request, null, 2), "utf-8");
+  await upsertRow('approvals', toRow(request));
   return request;
 }
 
 export async function getApprovalRequest(leadId) {
-  await ensureDir();
-  try {
-    return JSON.parse(await fs.readFile(approvalPath(leadId), "utf-8"));
-  } catch {
-    return null;
-  }
+  return getRow('approvals', 'lead_id', leadId);
 }
 
 export async function listApprovalRequests() {
-  await ensureDir();
-  const files = await fs.readdir(DATA_DIR);
-  const items = await Promise.all(
-    files.filter((name) => name.endsWith(".json")).map(async (name) => {
-      const raw = await fs.readFile(path.join(DATA_DIR, name), "utf-8");
-      return JSON.parse(raw);
-    })
-  );
-  return items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return listRows('approvals', { orderBy: 'created_at DESC' });
 }
 
 export async function resolveApprovalRequest(leadId, decision, overrides = {}) {
   const request = await getApprovalRequest(leadId);
   if (!request) return null;
-
   const updated = {
     ...request,
     status: decision,
     decision,
+    approvalSource: overrides.approvalSource || request.approvalSource || 'manual',
     finalMessage: overrides.finalMessage || request.polishedMessage,
     decidedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    reviewerNote: overrides.reviewerNote || ""
+    reviewerNote: overrides.reviewerNote || ''
   };
-
-  await fs.writeFile(approvalPath(leadId), JSON.stringify(updated, null, 2), "utf-8");
+  await upsertRow('approvals', toRow(updated));
   return updated;
 }

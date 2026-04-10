@@ -1,0 +1,4 @@
+id,source,channel,businessName,niche,city,instagramHandle,instagramUrl,instagramBio,websiteUrl,lineUrl,notes,rawText
+lead_201,instagram,instagram_dm,Lash Atelier Miu,eyelash,Yokohama,@lashateliermiu,https://instagram.com/lashateliermiu,"まつげパーマ・アイブロウ。ご予約はDMまたはLINEから。",,,Elegant eyelash salon.,DM予約 / LINE予約 / 小規模サロン
+lead_202,google_maps,line,Spa Haru,spa,Tokyo,,,"",,https://line.me/example,Relaxation spa with simple website.,LINE導線あり / 外部予約は弱い
+lead_203,instagram,instagram_dm,Clinic Niji,clinic,Tokyo,@clinicniji,https://instagram.com/clinicniji,"美容皮膚科。LINE予約あり。",https://clinic-niji.example,https://line.me/clinicniji,Small aesthetic clinic.,LINE予約 / 比較的丁寧な投稿

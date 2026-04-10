@@ -20,7 +20,7 @@ async function getClient() {
   const imported = await openaiModulePromise;
   if (!imported?.default) return null;
 
-  cachedClient = new imported.default({ apiKey: process.env.OPENAI_API_KEY });
+  cachedClient = new imported.default({ apiKey: process.env.OPENAI_API_KEY, timeout: 8000, maxRetries: 0 });
   return cachedClient;
 }
 
@@ -100,7 +100,7 @@ export async function generateText({
   user,
   model = "gpt-4.1-mini",
   temperature = 0.7,
-  retries = 2
+  retries = 0
 }) {
   const client = await getClient();
   if (!client) {

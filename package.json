@@ -1,28 +1,45 @@
 {
-  "name": "production-project-v3",
-  "version": "3.0.0",
+  "name": "production-project-v7",
+  "version": "7.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "lint": "eslint .",
+    "server": "node server/app.js",
+    "dashboard": "node server/app.js",
     "start:batch": "node batch-example.js",
+    "batch:csv": "node batch-example.js",
     "reply:demo": "node workflows/run-reply-demo.js",
     "approval:demo": "node workflows/run-approval-demo.js",
     "followup:demo": "node workflows/run-followup-demo.js",
     "start:workflow": "node index.js",
-    "env:check": "node scripts/check-env.js"
+    "env:check": "node scripts/check-env.js",
+    "csv:import": "node scripts/import-leads-csv.js",
+    "csv:export": "node scripts/export-leads-csv.js",
+    "db:init": "node scripts/init-db.js",
+    "webhook:test": "node scripts/test-webhooks.js",
+    "campaign:demo": "node scripts/create-demo-campaign.js",
+    "campaign:run": "node scripts/run-campaigns.js",
+    "worker": "node scripts/worker-loop.js",
+    "worker:once": "node scripts/worker-loop.js --once",
+    "preflight": "node scripts/preflight-check.js",
+    "start:prod": "node scripts/start-prod.js"
   },
   "keywords": [
     "ai-sales",
     "japan",
     "instagram",
     "line",
-    "leadgen"
+    "leadgen",
+    "batch",
+    "csv",
+    "dashboard",
+    "sqlite",
+    "postgres"
   ],
   "author": "",
   "license": "ISC",
-  "description": "Production-ready AI sales workflow foundation for Japan",
+  "description": "AI sales workflow foundation v7 with dashboard auth, operator inbox, campaign scheduler, analytics, and safer live approval policy",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.0",
@@ -30,6 +47,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.1",
-    "openai": "^6.34.0"
+    "openai": "^6.34.0",
+    "pg": "^8.20.0"
   }
 }
