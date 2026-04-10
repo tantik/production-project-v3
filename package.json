@@ -1,6 +1,6 @@
 {
-  "name": "production-project-v7",
-  "version": "7.0.0",
+  "name": "production-project-v7.1",
+  "version": "7.1.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -39,7 +39,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "description": "AI sales workflow foundation v7 with dashboard auth, operator inbox, campaign scheduler, analytics, and safer live approval policy",
+  "description": "Deploy-ready AI sales system foundation v7.1 with Node 20-compatible SQLite, dashboard auth, operator inbox, campaign scheduler, analytics, and safer live approval policy",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.0",
@@ -48,6 +48,7 @@
   "dependencies": {
     "dotenv": "^17.4.1",
     "openai": "^6.34.0",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "sql.js": "^1.13.0"
   }
 }

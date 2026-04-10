@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { DatabaseSync } from 'node:sqlite';
+import initSqlJs from 'sql.js';
 import { loadEnv } from './env.js';
 
 loadEnv();
@@ -47,12 +47,46 @@ function buildWhere(where = [], dialect = 'sqlite', offset = 0) {
 async function createSqliteDriver() {
   await fs.mkdir(DATA_DIR, { recursive: true });
   const sqlitePath = process.env.SQLITE_PATH ? path.resolve(process.env.SQLITE_PATH) : DEFAULT_SQLITE_PATH;
-  const db = new DatabaseSync(sqlitePath);
-  db.exec('PRAGMA journal_mode = DELETE');
+  const sqlWasmPath = path.resolve('node_modules', 'sql.js', 'dist');
+  const SQL = await initSqlJs({ locateFile: (file) => path.join(sqlWasmPath, file) });
 
-  const run = async (sql, params = []) => db.prepare(sql).run(...params);
-  const get = async (sql, params = []) => rowToObject(db.prepare(sql).get(...params) || null);
-  const all = async (sql, params = []) => db.prepare(sql).all(...params).map(rowToObject);
+  let db;
+  try {
+    const existing = await fs.readFile(sqlitePath);
+    db = new SQL.Database(existing);
+  } catch {
+    db = new SQL.Database();
+  }
+
+  const persist = async () => {
+    const data = db.export();
+    await fs.writeFile(sqlitePath, Buffer.from(data));
+  };
+
+  const mapResults = (statement) => {
+    const rows = [];
+    while (statement.step()) rows.push(statement.getAsObject());
+    statement.free();
+    return rows.map(rowToObject);
+  };
+
+  const run = async (sql, params = []) => {
+    db.run(sql, params);
+    await persist();
+    return { changes: 1 };
+  };
+
+  const get = async (sql, params = []) => {
+    const statement = db.prepare(sql, params);
+    const rows = mapResults(statement);
+    return rows[0] || null;
+  };
+
+  const all = async (sql, params = []) => {
+    const statement = db.prepare(sql, params);
+    return mapResults(statement);
+  };
+
   const init = async () => {
     const statements = [
       `CREATE TABLE IF NOT EXISTS leads (id TEXT PRIMARY KEY, business_name TEXT, channel TEXT, status TEXT, created_at TEXT, updated_at TEXT, data TEXT NOT NULL)`,
@@ -64,8 +98,10 @@ async function createSqliteDriver() {
       `CREATE TABLE IF NOT EXISTS inbound_events (id TEXT PRIMARY KEY, provider TEXT, lead_id TEXT, channel TEXT, external_thread_id TEXT, external_user_id TEXT, event_type TEXT, text TEXT, received_at TEXT, data TEXT NOT NULL)`,
       `CREATE TABLE IF NOT EXISTS campaigns (id TEXT PRIMARY KEY, status TEXT, scheduled_for TEXT, created_at TEXT, updated_at TEXT, data TEXT NOT NULL)`
     ];
-    statements.forEach((statement) => db.exec(statement));
+    for (const statement of statements) db.run(statement);
+    await persist();
   };
+
   return { kind: 'sqlite', init, run, get, all };
 }
 

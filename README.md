@@ -1,6 +1,8 @@
-# Production Project v7
+# Production Project v7.1
 
 Deploy-ready AI sales system foundation for Japan.
+
+Эта версия переведена на **Node 20-compatible SQLite через `sql.js`**. Теперь локальный режим SQLite работает без `node:sqlite`, поэтому проект можно запускать на Windows с Node 20 без обновления Node.
 
 Система помогает находить лидов, оценивать их, готовить мягкий outreach, отправлять сообщения, принимать ответы, вести follow-up, запускать кампании и управлять этим через dashboard/API.
 
@@ -90,6 +92,7 @@ workflows/      Связанные сценарии (outreach, reply, approval, 
 Самый простой режим для локального запуска и тестов.
 
 - База: `data/app.db`
+- Используется `sql.js`, совместимый с Node 20
 - Ничего дополнительно поднимать не нужно
 
 ### Postgres
