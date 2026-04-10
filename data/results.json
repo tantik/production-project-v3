@@ -1,0 +1,123 @@
+[
+  {
+    "id": "lead_manual_1",
+    "createdAt": "2026-04-10T09:09:16.234Z",
+    "updatedAt": "2026-04-10T09:09:16.241Z",
+    "source": "instagram",
+    "channel": "instagram_dm",
+    "businessName": "Manual Approval Salon",
+    "niche": "nail",
+    "city": "Tokyo",
+    "instagramHandle": "@manualsalon",
+    "instagramUrl": "",
+    "instagramBio": "ご予約はDMから",
+    "websiteUrl": "",
+    "lineUrl": "",
+    "notes": "",
+    "rawText": "予約はDM中心",
+    "hasInstagram": true,
+    "hasLine": false,
+    "hasWebsite": false,
+    "bookingMethod": "instagram_dm",
+    "postingFrequency": "unknown",
+    "strengths": [
+      "LINEやDMでの予約導線が見える"
+    ],
+    "painPoints": [
+      "Instagram DM経由の予約導線が見受けられる",
+      "予約導線をより分かりやすくできる余地があるかもしれない",
+      "外部予約ページの見せ方に改善余地がある可能性"
+    ],
+    "enrichment": {
+      "nicheLabel": "Nail Salon",
+      "tone": "soft-elegant",
+      "offerHint": "reservation flow optimization",
+      "bookingMethod": "instagram_dm",
+      "postingFrequency": "unknown",
+      "strengths": [
+        "LINEやDMでの予約導線が見える"
+      ],
+      "painPoints": [
+        "Instagram DM経由の予約導線が見受けられる",
+        "予約導線をより分かりやすくできる余地があるかもしれない",
+        "外部予約ページの見せ方に改善余地がある可能性"
+      ],
+      "summary": "Manual Approval SalonはNail Salonとして、外部から見える範囲では予約導線や見せ方を整理できる可能性があります。",
+      "recommendedAngle": "予約導線を分かりやすくし、対応負担を軽くする提案"
+    },
+    "scoring": {
+      "parts": {
+        "nicheFit": 100,
+        "digitalPresence": 50,
+        "bookingProblem": 85,
+        "automationPotential": 80,
+        "activitySignal": 40
+      },
+      "totalScore": 76,
+      "grade": "B",
+      "reasons": [
+        "supported niche",
+        "active digital presence on Instagram",
+        "LINE opportunity detected",
+        "reservation flow may rely on DM entry point",
+        "no clear external booking page",
+        "good fit for workflow optimization"
+      ],
+      "recommendedOffer": "line_booking_automation"
+    },
+    "messages": [
+      {
+        "id": "variant_1",
+        "text": "Manual Approval Salon様のInstagramを拝見し、雰囲気がとても素敵でした。DMでのご予約の流れを、やわらかい形でもう少し分かりやすくできる余地があるかもしれません。ご参考までに一度ご連絡しました。",
+        "score": 96,
+        "reasons": [
+          "business name included",
+          "channel context visible",
+          "booking context visible",
+          "specific topic",
+          "soft CTA"
+        ]
+      },
+      {
+        "id": "variant_3",
+        "text": "Manual Approval Salon様のInstagramを見ていて、世界観を崩さずにご予約の流れを整えられたら、さらに分かりやすくなりそうだなと感じました。もしご興味があれば、差し支えない範囲で少しだけお話しできればうれしいです。",
+        "score": 90,
+        "reasons": [
+          "business name included",
+          "channel context visible",
+          "specific topic",
+          "soft CTA"
+        ]
+      },
+      {
+        "id": "variant_2",
+        "text": "Manual Approval Salon様の投稿を拝見して、雰囲気づくりがとても丁寧だなと感じました。DMでのご予約の流れを、やわらかい形でもう少し分かりやすくできる余地があるかもしれないと思い、失礼ながらDMしました。",
+        "score": 78,
+        "reasons": [
+          "business name included",
+          "booking context visible",
+          "specific topic"
+        ]
+      }
+    ],
+    "selectedMessage": {
+      "id": "variant_1",
+      "text": "Manual Approval Salon様のInstagramを拝見し、雰囲気がとても素敵でした。DMでのご予約の流れを、やわらかい形でもう少し分かりやすくできる余地があるかもしれません。ご参考までに一度ご連絡しました。",
+      "score": 96,
+      "reasons": [
+        "business name included",
+        "channel context visible",
+        "booking context visible",
+        "specific topic",
+        "soft CTA"
+      ]
+    },
+    "polishedMessage": "Manual Approval Salon様のInstagramを拝見し、雰囲気がとても素敵でした。DMでのご予約の流れを、やわらかい形でもう少し分かりやすくできる余地があるかもしれません。ご参考までにご連絡しました。",
+    "recommendedOffer": "line_booking_automation",
+    "salesStrategy": null,
+    "outreach": null,
+    "lastInboundReply": null,
+    "replyPlan": null,
+    "status": "completed"
+  }
+]

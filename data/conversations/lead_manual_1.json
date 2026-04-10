@@ -1,0 +1,13 @@
+{
+  "leadId": "lead_manual_1",
+  "messages": [
+    {
+      "role": "system",
+      "eventType": "lead_prepared",
+      "text": "Lead prepared with score 76",
+      "at": "2026-04-10T09:09:16.244Z"
+    }
+  ],
+  "nextAction": null,
+  "updatedAt": "2026-04-10T09:09:16.244Z"
+}

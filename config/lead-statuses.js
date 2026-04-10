@@ -1,0 +1,22 @@
+export const leadStatuses = {
+  NEW: "new",
+  ENRICHED: "enriched",
+  SCORED: "scored",
+  READY_TO_MESSAGE: "ready_to_message",
+  PENDING_APPROVAL: "pending_approval",
+  MESSAGE_APPROVED: "message_approved",
+  SENT: "sent",
+  REPLIED: "replied",
+  QUALIFIED: "qualified",
+  INTERESTED: "interested",
+  MEETING_REQUESTED: "meeting_requested",
+  PROPOSAL_SENT: "proposal_sent",
+  NEGOTIATION: "negotiation",
+  WON: "won",
+  LOST: "lost",
+  FOLLOWUP_PENDING: "followup_pending",
+  FOLLOWUP_READY: "followup_ready",
+  DO_NOT_CONTACT: "do_not_contact",
+  SKIPPED: "skipped",
+  COMPLETED: "completed"
+};
