@@ -1,11 +1,17 @@
+import { loadEnv } from "./env.js";
+
 let openaiModulePromise = null;
+let cachedClient = null;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function getClient() {
+  loadEnv();
+
   if (!process.env.OPENAI_API_KEY) return null;
+  if (cachedClient) return cachedClient;
 
   if (!openaiModulePromise) {
     openaiModulePromise = import("openai").catch(() => null);
@@ -14,7 +20,8 @@ async function getClient() {
   const imported = await openaiModulePromise;
   if (!imported?.default) return null;
 
-  return new imported.default({ apiKey: process.env.OPENAI_API_KEY });
+  cachedClient = new imported.default({ apiKey: process.env.OPENAI_API_KEY });
+  return cachedClient;
 }
 
 export function extractJsonFromText(text) {
@@ -97,7 +104,7 @@ export async function generateText({
 }) {
   const client = await getClient();
   if (!client) {
-    throw new Error("OpenAI client is unavailable. Set OPENAI_API_KEY and install dependencies.");
+    throw new Error("OpenAI client is unavailable. Add OPENAI_API_KEY to .env and run npm install.");
   }
 
   let lastError;

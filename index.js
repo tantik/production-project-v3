@@ -1,4 +1,7 @@
+import { loadEnv, getEnvSummary } from "./services/env.js";
 import { runOutreachWorkflow } from "./workflows/run-outreach-workflow.js";
+
+loadEnv();
 
 const rawLead = {
   id: "lead_001",
@@ -28,13 +31,12 @@ https://instagram.com/example_salon
 
 async function main() {
   try {
-    const result = await runOutreachWorkflow({
-      rawLead,
-      sendMode: "dry_run",
-      autoApprove: true
-    });
+    const result = await runOutreachWorkflow({ rawLead, sendMode: "dry_run", autoApprove: true });
 
-    console.log("=== OUTREACH RESULT ===");
+    console.log("=== ENV SUMMARY ===");
+    console.log(JSON.stringify(getEnvSummary(), null, 2));
+
+    console.log("\n=== OUTREACH RESULT ===");
     console.log(JSON.stringify(result, null, 2));
 
     console.log("\n=== SALES STRATEGY ===");

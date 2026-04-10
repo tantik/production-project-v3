@@ -40,3 +40,25 @@ export async function getDueFollowups(referenceIso = new Date().toISOString()) {
   const queue = await readQueue();
   return queue.filter((item) => item.status === "pending" && item.dueAt <= referenceIso);
 }
+
+export async function cancelPendingFollowupsForLead(leadId, reason = "cancelled") {
+  const queue = await readQueue();
+  let changed = false;
+
+  const updated = queue.map((item) => {
+    if (item.leadId !== leadId || item.status !== "pending") return item;
+    changed = true;
+    return {
+      ...item,
+      status: "cancelled",
+      cancelledAt: new Date().toISOString(),
+      cancelReason: reason
+    };
+  });
+
+  if (changed) {
+    await writeQueue(updated);
+  }
+
+  return updated.filter((item) => item.leadId === leadId);
+}

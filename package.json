@@ -1,6 +1,6 @@
 {
-  "name": "test-project",
-  "version": "2.0.0",
+  "name": "production-project-v3",
+  "version": "3.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,12 +10,19 @@
     "reply:demo": "node workflows/run-reply-demo.js",
     "approval:demo": "node workflows/run-approval-demo.js",
     "followup:demo": "node workflows/run-followup-demo.js",
-    "start:workflow": "node index.js"
+    "start:workflow": "node index.js",
+    "env:check": "node scripts/check-env.js"
   },
-  "keywords": [],
+  "keywords": [
+    "ai-sales",
+    "japan",
+    "instagram",
+    "line",
+    "leadgen"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "AI sales workflow foundation for Japan",
+  "description": "Production-ready AI sales workflow foundation for Japan",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.0",

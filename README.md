@@ -1,16 +1,23 @@
-# AI Sales System for Japan — v2
+# AI Sales System for Japan — v3
 
-This version adds a more production-ready workflow layer:
+This version is a cleaner, more production-oriented foundation for outreach in Japan.
+
+## Included
+- lead enrichment + scoring
+- Japanese outreach message generation
+- message selection + polishing
 - manual approval queue
-- channel adapters
-- follow-up scheduler
-- reply handling
+- dry-run channel adapters
 - local CRM + conversation history
+- reply classification + draft response planning
+- guarded follow-up scheduler
+- environment loading from `.env` / `.env.local`
 
 ## Run
 
 ```bash
 npm install
+npm run env:check
 npm run start
 npm run start:batch
 npm run reply:demo
@@ -19,7 +26,6 @@ npm run followup:demo
 ```
 
 ## Main flow
-
 1. Prepare lead
 2. Enrich + score
 3. Generate 3 messages
@@ -31,7 +37,6 @@ npm run followup:demo
 9. Draft next reply or schedule follow-up
 
 ## Storage
-
 - `data/leads.json`
 - `data/results.json`
 - `data/conversations/*.json`
@@ -40,5 +45,6 @@ npm run followup:demo
 - `data/followups/queue.json`
 
 ## Notes
-
-Current senders are dry-run adapters only. They are built to be replaced later with real Instagram / LINE integrations.
+- Current senders are dry-run adapters only.
+- Real Instagram / LINE integrations should be added later behind the same sender interface.
+- Do not commit your `.env` file.

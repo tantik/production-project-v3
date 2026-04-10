@@ -1,4 +1,4 @@
-import { upsertFollowup, getDueFollowups } from "./followup-store.js";
+import { upsertFollowup, getDueFollowups, cancelPendingFollowupsForLead } from "./followup-store.js";
 import { appendConversationEvent } from "../crm/conversation-store.js";
 import { sendMessage } from "../channels/sender.js";
 import { upsertLead, listLeads } from "../crm/lead-store.js";
@@ -16,6 +16,15 @@ export function buildFollowupMessage(lead, followupNumber = 1) {
   }
 
   return `${lead.businessName}様、重ねて失礼いたします。こちらで最後にしますが、DMやLINEでのご予約導線について、今の雰囲気を崩さずに整理できそうな点があれば短くお伝えできます。必要なければご放念ください。`;
+}
+
+function hasInboundReply(lead) {
+  return Boolean(lead.lastInboundReply?.text);
+}
+
+function hasReachedFollowupLimit(lead, task) {
+  const maxFollowups = lead.salesStrategy?.followupPolicy?.maxFollowups ?? 2;
+  return task.followupNumber > maxFollowups;
 }
 
 export async function scheduleFollowup(lead, { days, reason, followupNumber = 1 }) {
@@ -55,7 +64,21 @@ export async function processDueFollowups({ mode = "dry_run", nowIso = new Date(
   for (const task of dueTasks) {
     const lead = leads.find((item) => item.id === task.leadId);
     if (!lead) continue;
-    if ([leadStatuses.DO_NOT_CONTACT, leadStatuses.LOST, leadStatuses.WON].includes(lead.status)) continue;
+
+    if ([leadStatuses.DO_NOT_CONTACT, leadStatuses.LOST, leadStatuses.WON].includes(lead.status)) {
+      await upsertFollowup({ ...task, status: "cancelled", cancelledAt: new Date().toISOString(), cancelReason: "lead_in_terminal_status" });
+      continue;
+    }
+
+    if (hasInboundReply(lead)) {
+      await upsertFollowup({ ...task, status: "cancelled", cancelledAt: new Date().toISOString(), cancelReason: "inbound_reply_already_received" });
+      continue;
+    }
+
+    if (hasReachedFollowupLimit(lead, task)) {
+      await upsertFollowup({ ...task, status: "cancelled", cancelledAt: new Date().toISOString(), cancelReason: "followup_limit_reached" });
+      continue;
+    }
 
     const text = buildFollowupMessage(lead, task.followupNumber);
     const sentLead = await sendMessage({
@@ -67,14 +90,11 @@ export async function processDueFollowups({ mode = "dry_run", nowIso = new Date(
     });
 
     await upsertFollowup({ ...task, status: "completed", completedAt: new Date().toISOString() });
-    await upsertLead({
-      ...sentLead,
-      status: leadStatuses.SENT,
-      updatedAt: new Date().toISOString()
-    });
-
+    await upsertLead({ ...sentLead, status: leadStatuses.SENT, updatedAt: new Date().toISOString() });
     processed.push({ leadId: lead.id, followupNumber: task.followupNumber, text });
   }
 
   return processed;
 }
+
+export { cancelPendingFollowupsForLead };

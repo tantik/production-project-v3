@@ -1,6 +1,5 @@
-.env
 node_modules/
-data/results.json
-src/
+data/
+.env
+.env.local
 .DS_Store
-*.zip
